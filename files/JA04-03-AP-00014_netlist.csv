@@ -165,7 +165,7 @@ Number,Class,x,y,w,h,Location
 116,Reducer (Horizontal-Left) + Flange Joint,4870,1091,60,38,F2
 Vessels
 Number,x,y,w,h,Location
-1,1856,2409,2961,757,"('D', '4')"
+1,1856,2409,2961,757,D4
 Pipelines
 Number,Orientation,x1,y1,x2,y2,Thickness,Location,Flow
 1,horizontal,4850,3823,4993,3823,3,F5,N/A

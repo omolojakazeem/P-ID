@@ -101,7 +101,7 @@ def list2frame(data, columns):
 def find_ranges(data):  # data: the dictionary of all frames read in read_csv() function
     data_x = []
     data_y = []
-    equipment_syb_list_name = ""
+    equipment_syb_list_name = []
     if 'Continuity Labels' in data.keys():
 
         for rec in data[
@@ -119,7 +119,8 @@ def find_ranges(data):  # data: the dictionary of all frames read in read_csv() 
             data_y.extend([rec[3], rec[5]])
     if 'Equipment symbols' in data.keys():
         for rec in data['Equipment symbols']:
-            # equipment_syb_list_name.append(rec[1])
+            equipment_syb_list_name.append(rec[1])
+
             # #print(rec[1])
             # equipment_syb_list_name = rec[1]
             # # for i in rec[1]:
@@ -158,6 +159,7 @@ def find_ranges(data):  # data: the dictionary of all frames read in read_csv() 
 
 #### check if (x,y) is inside any rectangle of 'areas' or not
 def check_in_area(areas, x, y):
+
     for area in areas:  # each area is a rectangle defined by (x1,y1,x2,y2)
         x1 = area[0]
         y1 = area[1]

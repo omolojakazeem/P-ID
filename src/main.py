@@ -104,15 +104,15 @@ class NetlistGUI(QWidget):
 
         self.searchSection = QComboBox()
         gridLeft.addWidget(self.searchSection, 8, 0)
-        searchItemList = ["To", "Be", "Populated", "When", "File", "Loads"]
-        for item in searchItemList:
-            self.searchSection.addItem(item)
+        # searchItemList = ["To", "Be", "Populated", "When", "File", "Loads"]
+        # for item in searchItemList:
+        #     self.searchSection.addItem(item)
 
         self.searchSection = QComboBox()
         gridLeft.addWidget(self.searchSection, 8, 1)
-        searchItemList = ["To", "Be", "Populated", "When", "File", "Loads"]
-        for item in searchItemList:
-            self.searchSection.addItem(item)
+        # searchItemList = ["To", "Be", "Populated", "When", "File", "Loads"]
+        # for item in searchItemList:
+        #     self.searchSection.addItem(item)
 
         lblSection = QLabel('Section Breaks')
         gridLeft.addWidget(lblSection, 9, 0)
@@ -295,12 +295,9 @@ class NetlistGUI(QWidget):
             self.data, self.columns = read_csv(fName[0])
 
             self.minX, self.minY, self.maxX, self.maxY, self.equipment_syb_list_name = find_ranges(self.data)
-            # #self.searchSection.addItem(self.equipment_syb_list_name)
-            #
-            # items = self.equipment_syb_list_name.split()
-            # print(self.equipment_syb_list_name)
-            # for item in items:
-            #     self.searchSection.addItem(item)
+            for item in set(self.equipment_syb_list_name):
+                self.searchSection.addItem(item)
+            
             self.selectedData = self.data
 
 
