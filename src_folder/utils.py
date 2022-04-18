@@ -293,7 +293,7 @@ def query_by_areas(data, areas, useful_column_index):
 
 
 #### convert a dictionary (selectedData) to text string
-def query_to_text(data, selectedData, selected_location=None, selected_item=None, useful_column_index=None, column_list=None):
+def query_to_text(data, selectedData, selected_location=None, selected_part=None, useful_column_index=None, column_list=None):
 
     cl_column_data, ab_column_data, sb_column_data, cb_column_data, vs_column_data, pl_column_data, pj_column_data, ts_column_data, es_column_data, et_column_data, ss_column_data = useful_column_index
     ret = ""
@@ -334,36 +334,97 @@ def query_to_text(data, selectedData, selected_location=None, selected_item=None
                     if i in selectedData:
                         for rec in selectedData[i]:
                             if i == 'Vessels':
-                                if rec[vs_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    pass
+                                elif selected_location:
+                                    if rec[vs_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
+
                             if i == 'Pipelines':
-                                if rec[pl_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    pass
+                                elif selected_location:
+                                    if rec[pl_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
+
                             if i == 'Continuity Labels':
-                                if rec[cl_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    pass
+                                elif selected_location:
+                                    if rec[cl_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
+
                             if i == 'Pipeline Junctions':
-                                if rec[pj_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    pass
+                                elif selected_location:
+                                    if rec[pj_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
+
                             if i == 'Equipment symbols':
-                                if rec[es_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    if selected_part[0] == 'Equipment symbols':
+                                        if rec[es_column_data['class']] in selected_part:
+                                            ret += str(rec) + '\n'
+                                elif rec[es_column_data['Location']] in selected_location:
+                                    ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
                             if i == 'Equipment Tags':
-                                if rec[et_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    pass
+                                elif selected_location:
+                                    if rec[et_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
+
                             if i == 'Sensors':
-                                print("kil")
-                                if rec[ss_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    if selected_part[0] == 'Sensors':
+                                        if rec[ss_column_data['tag']] in selected_part:
+                                            ret += str(rec) + '\n'
+                                    else:
+                                        pass
+                                elif selected_location:
+                                    if rec[ss_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
                             if i == 'Area Breaks':
-                                if rec[ab_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    pass
+                                elif selected_location:
+                                    if rec[ab_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
                             if i == 'Section Breaks':
-                                if rec[sb_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    pass
+                                elif selected_location:
+                                    if rec[sb_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
+
                             if i == 'Composition Breaks':
-                                if rec[cb_column_data['Location']] in selected_location:
+                                if selected_part:
+                                    pass
+                                elif selected_location:
+                                    if rec[cb_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                else:
                                     ret += str(rec) + '\n'
+
 
     return ret
 
@@ -403,6 +464,42 @@ def drawText(qp, px, py, text, minX, minY, maxX, maxY, sizeX, sizeY):
     qp.drawText(QPoint(x + 5, y - 5), text)
 
 
+def drawMyText(frame, px, py, text, minX, minY, maxX, maxY, sizeX, sizeY, color):
+    x = sizeX * (px - minX) / (maxX - minX)
+    y = sizeY * (py - minY) / (maxY - minY)  # Y-axis top-to-bottom
+
+    text_msg = frame._scene.addText(text)
+    text_msg.setPos(x + 5, y - 5)
+    text_msg.setDefaultTextColor(color)
+    return text_msg
+
+
+def drawMyLine(frame, px1, py1, px2, py2, minX, minY, maxX, maxY, sizeX, sizeY, color):  # qp is a QPen for drawing
+    x1 = sizeX * (px1 - minX) / (maxX - minX)
+    y1 = sizeY * (py1 - minY) / (maxY - minY)  # Y-axis top-to-bottom
+
+    x2 = sizeX * (px2 - minX) / (maxX - minX)
+    y2 = sizeY * (py2 - minY) / (maxY - minY)  # Y-axis top-to-bottom
+
+    line = frame._scene.addLine(x1, y1, x2, y2, QPen(color))
+    return line
+
+
+def drawMyRec(frame, px1, py1, px2, py2, minX, minY, maxX, maxY, sizeX, sizeY, color):  # qp is a QPen for drawing
+    drawMyLine(frame, px1, py1, px2, py1, minX, minY, maxX, maxY, sizeX, sizeY, color)
+    drawMyLine(frame, px1, py1, px1, py2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+    drawMyLine(frame, px1, py2, px2, py2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+    drawMyLine(frame, px2, py1, px2, py2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+
+
+def drawMyCircle(frame, px, py, pr, minX, minY, maxX, maxY, sizeX, sizeY, color):
+    x = sizeX * (px - minX) / (maxX - minX)
+    y = sizeY * (py - minY) / (maxY - minY)  # Y-axis top-to-bottom
+
+    ellipse = frame._scene.addEllipse(x, y, 10, 10, color)
+    return ellipse
+
+
 def draw_pipelines(frame, data, minX, minY, maxX, maxY,selected_location=None, selected_part=None, column_data=None, color=Qt.blue):
 
     if frame.parent().parent().select_pipeline_checkbox.isChecked():
@@ -419,29 +516,36 @@ def draw_pipelines(frame, data, minX, minY, maxX, maxY,selected_location=None, s
             if selected_location:
                 if rec[column_data["Location"]] in selected_location:
                     #         qp.setPen(QPen(color, int(rec[6])))        # Thickness
-                    drawLine(qp, rec[column_data['x1']], rec[column_data['y1']], rec[column_data['x2']], rec[column_data['y2']], minX, minY, maxX, maxY, sizeX, sizeY)
-
+                    drawMyLine(frame, rec[column_data['x1']], rec[column_data['y1']], rec[column_data['x2']],
+                               rec[column_data['y2']], minX, minY, maxX, maxY, sizeX, sizeY, color)
                     x = (rec[column_data['x1']] + rec[column_data['x2']]) / 2
                     y = (rec[column_data['y1']] + rec[column_data['y2']]) / 2
                     #            if frame.parent().parent().ckPipeline.isChecked():
                     if rec[column_data['direction']] == 'horizontal':
-                        drawText(qp, x, y, 'P' + str(rec[column_data['number']]) + 'H', minX, minY, maxX, maxY, sizeX, sizeY)
+                        drawMyText(frame, x, y, 'P' + str(rec[column_data['number']]) + 'H', minX, minY, maxX, maxY,sizeX,sizeY, color)
                     else:
-                        drawText(qp, x, y, 'P' + str(rec[column_data['number']]) + 'V', minX, minY, maxX, maxY, sizeX, sizeY)
+                        drawMyText(frame, x, y, 'P' + str(rec[column_data['number']]) + 'V', minX, minY, maxX, maxY, sizeX+200, sizeY+100, color)
+            elif selected_part:
+                pass
             else:
                 #         qp.setPen(QPen(color, int(rec[6])))        # Thickness
-                drawLine(qp, rec[column_data['x1']], rec[column_data['y1']], rec[column_data['x2']],
-                         rec[column_data['y2']], minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, rec[column_data['x1']], rec[column_data['y1']], rec[column_data['x2']],
+                #          rec[column_data['y2']], minX, minY, maxX, maxY, sizeX, sizeY)
+                drawMyLine(frame, rec[column_data['x1']], rec[column_data['y1']], rec[column_data['x2']],
+                         rec[column_data['y2']], minX, minY, maxX, maxY, sizeX, sizeY, color)
+
 
                 x = (rec[column_data['x1']] + rec[column_data['x2']]) / 2
                 y = (rec[column_data['y1']] + rec[column_data['y2']]) / 2
                 #            if frame.parent().parent().ckPipeline.isChecked():
                 if rec[column_data['direction']] == 'horizontal':
-                    drawText(qp, x, y, 'P' + str(rec[column_data['number']]) + 'H', minX, minY, maxX, maxY, sizeX,
-                             sizeY)
+                    # drawText(qp, x, y, 'P' + str(rec[column_data['number']]) + 'H', minX, minY, maxX, maxY, sizeX,
+                    #          sizeY)
+                    drawMyText(frame, x, y, 'P' + str(rec[column_data['number']]) + 'H', minX, minY, maxX, maxY, sizeX,
+                             sizeY, color)
                 else:
-                    drawText(qp, x, y, 'P' + str(rec[column_data['number']]) + 'V', minX, minY, maxX, maxY, sizeX,
-                             sizeY)
+                    drawMyText(frame, x, y, 'P' + str(rec[column_data['number']]) + 'V', minX, minY, maxX, maxY, sizeX-100,
+                               sizeY, color)
         #
         qp.end()
 
@@ -462,29 +566,49 @@ def draw_equipments(frame, data, minX, minY, maxX, maxY, selected_location=None,
             if selected_location:
                 if rec[column_data["Location"]] in selected_location:
                     x1 = rec[column_data["x"]]
-                    x2 = rec[column_data["x"]] + rec[4]
+                    x2 = rec[column_data["x"]] + rec[column_data["w"]]
                     y1 = rec[column_data["y"]]
-                    y2 = rec[column_data["y"]] + rec[5]
-                    drawLine(qp, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawText(qp, x1, y1, 'Eq' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY)
+                    y2 = rec[column_data["y"]] + rec[column_data["h"]]
+                    drawMyLine(frame, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    #drawText(qp, x1, y1, 'Eq' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyText(frame, x1, y1, 'Eq' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX,
+                               sizeY, color)
+            elif selected_part:
+                if selected_part[0] == 'Equipment symbols':
+                    if rec[column_data["class"]] in selected_part:
+                        x1 = rec[column_data["x"]]
+                        x2 = rec[column_data["x"]] + rec[column_data["w"]]
+                        y1 = rec[column_data["y"]]
+                        y2 = rec[column_data["y"]] + rec[column_data["h"]]
+                        drawMyLine(frame, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                        drawMyLine(frame, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                        drawMyLine(frame, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                        drawMyLine(frame, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                        drawMyText(frame, x1, y1, 'Eq' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    else:
+                        pass
             else:
                 x1 = rec[column_data["x"]]
                 x2 = rec[column_data["x"]] + rec[column_data["w"]]
                 y1 = rec[column_data["y"]]
                 y2 = rec[column_data["y"]] + rec[column_data["h"]]
-                drawLine(qp, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawText(qp, x1, y1, 'Eq' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+
+                drawMyLine(frame, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+
+                drawMyText(frame, x1, y1, 'Eq' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY, color)
 
             #            if frame.parent().parent().select_equipment_checkbox.isChecked():
 
-
-        #
         qp.end()
 
 
@@ -504,19 +628,27 @@ def draw_continuity_labels(frame, data, minX, minY, maxX, maxY, selected_locatio
                     x2 = rec[column_data['x']] + rec[column_data['w']]
                     y1 = rec[column_data['y']]
                     y2 = rec[column_data['y']] + rec[column_data['h']]
-                    drawLine(qp, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+
+                    drawMyLine(frame, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+
+            elif selected_part:
+                pass
             else:
                 x1 = rec[column_data['x']]
                 x2 = rec[column_data['x']] + rec[column_data['w']]
                 y1 = rec[column_data['y']]
                 y2 = rec[column_data['y']] + rec[column_data['h']]
-                drawLine(qp, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                drawMyLine(frame, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
         #    qp.setPen(QPen(Qt.black, 1))
         for rec in data:
@@ -527,16 +659,23 @@ def draw_continuity_labels(frame, data, minX, minY, maxX, maxY, selected_locatio
                     y1 = rec[column_data['y']]
                     y2 = rec[column_data['y']] + rec[column_data['h']]
 
+
                     #        if frame.parent().parent().select_continuity_checkbox.isChecked():
-                    drawText(qp, x1 - ((x2 - x1) / 2), y1, rec[column_data['tag']], minX, minY, maxX, maxY, sizeX, sizeY)
+                    #drawText(qp, x1 - ((x2 - x1) / 2), y1, rec[column_data['tag']], minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyText(frame, x1 - ((x2 - x1) / 2), y1, rec[column_data['tag']], minX, minY, maxX, maxY, sizeX, sizeY-20, color)
+
+            elif selected_part:
+                pass
             else:
                 x1 = rec[column_data['x']]
                 x2 = rec[column_data['x']] + rec[column_data['w']]
                 y1 = rec[column_data['y']]
                 y2 = rec[column_data['y']] + rec[column_data['h']]
 
+
+
                 #        if frame.parent().parent().select_continuity_checkbox.isChecked():
-                drawText(qp, x1 - ((x2 - x1) / 2), y1, rec[column_data['tag']], minX, minY, maxX, maxY, sizeX, sizeY)
+                drawMyText(frame, x1 - ((x2 - x1) / 2), y1, rec[column_data['tag']], minX, minY, maxX, maxY, sizeX, sizeY-20, color)
 
         #
         qp.end()
@@ -561,31 +700,38 @@ def draw_vessels(frame, data, minX, minY, maxX, maxY, selected_location=None, se
                     x2 = rec[column_data['x']] + rec[column_data['w']]
                     y1 = rec[column_data['y']]
                     y2 = rec[column_data['y']] + rec[column_data['h']]
-                    drawLine(qp, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyLine(frame, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
                     qp.setPen(QPen(Qt.black, 1))
-                    drawText(qp, (x1 + x2) / 2, (y1 + y2) / 2, 'V' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyText(frame, (x1 + x2) / 2, (y1 + y2) / 2, 'V' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY, color)
+            elif selected_part:
+                pass
             else:
-
                 x1 = rec[column_data['x']]
                 x2 = rec[column_data['x']] + rec[column_data['w']]
                 y1 = rec[column_data['y']]
                 y2 = rec[column_data['y']] + rec[column_data['h']]
-                drawLine(qp, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY)
+
+                drawMyLine(frame, x1, y1, x2, y1, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x1, y1, x1, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x1, y2, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x2, y1, x2, y2, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
                 qp.setPen(QPen(Qt.black, 1))
-                drawText(qp, (x1 + x2) / 2, (y1 + y2) / 2, 'V' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY)
+                #drawText(qp, (x1 + x2) / 2, (y1 + y2) / 2, 'V' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY)
+                drawMyText(frame, (x1 + x2) / 2, (y1 + y2) / 2, 'V' + str(rec[column_data["number"]]), minX, minY, maxX, maxY, sizeX, sizeY, color)
     #
         qp.end()
 
 
-def draw_sensors(frame, data, minX, minY, maxX, maxY,selected_location=None, selected_part=None, column_data=None, color=Qt.blue):
+def draw_sensors(frame, data, minX, minY, maxX, maxY,selected_location=None, selected_part=None, column_data=None, color=Qt.yellow):
     #
     if frame.parent().parent().select_sensor_checkbox.isChecked():
         qp = QPainter()
@@ -603,15 +749,30 @@ def draw_sensors(frame, data, minX, minY, maxX, maxY,selected_location=None, sel
                     x = rec[column_data['x']]
                     y = rec[column_data['y']]
                     r = rec[column_data['r']]
-                    drawCircle(qp, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawText(qp, x, y, 'S' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY)
+                    #drawCircle(qp, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyCircle(frame, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    #drawText(qp, x, y, 'S' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyText(frame, x, y, 'S' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY, color)
+            elif selected_part:
+                if selected_part[0] == 'Sensors':
+                    if rec[column_data["tag"]] in selected_part:
+                        x = rec[column_data['x']]
+                        y = rec[column_data['y']]
+                        r = rec[column_data['r']]
+                        drawMyCircle(frame, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                        #drawText(qp, x, y, 'S' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY)
+                        drawMyText(frame, x, y, 'S' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX,
+                                   sizeY, color)
+                    else:
+                        pass
+
             else:
                 x = rec[column_data['x']]
                 y = rec[column_data['y']]
                 r = rec[column_data['r']]
-                drawCircle(qp, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawText(qp, x, y, 'S' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY)
-
+                drawMyCircle(frame, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                #drawText(qp, x, y, 'S' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY)
+                drawMyText(frame, x, y, 'S' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY, color)
         #
         qp.end()
 
@@ -634,14 +795,18 @@ def draw_tag(frame, data, minX, minY, maxX, maxY,selected_location=None, selecte
                     x = rec[column_data['x']]
                     y = rec[column_data['y']]
                     r = rec[column_data['r']]
-                    drawCircle(qp, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawText(qp, x, y, 'et' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyCircle(frame, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    #drawText(qp, x, y, 'et' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyText(frame, x, y, 'et' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY, color)
+            elif selected_part:
+                pass
             else:
                 x = rec[column_data['x']]
                 y = rec[column_data['y']]
                 r = rec[column_data['r']]
-                drawCircle(qp, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawText(qp, x, y, 'et' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY)
+                #drawCircle(qp, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY)
+                drawMyCircle(frame, x, y, r, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyText(frame, x, y, 'et' + str(rec[column_data['number']]), minX, minY, maxX, maxY, sizeX, sizeY, color)
 
         #
         qp.end()
@@ -664,13 +829,18 @@ def draw_junctions(frame, data, minX, minY, maxX, maxY, selected_location=None, 
                 if rec[column_data["Location"]] in selected_location:
                     x = rec[column_data['x']]
                     y = rec[column_data['y']]
-                    drawLine(qp, x - 5, y - 5, x + 5, y + 5, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x - 5, y + 5, x + 5, y - 5, minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyLine(frame, x - 5, y - 5, x + 5, y + 5, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x - 5, y + 5, x + 5, y - 5, minX, minY, maxX, maxY, sizeX, sizeY, color)
+            elif selected_part:
+                pass
             else:
                 x = rec[column_data['x']]
                 y = rec[column_data['y']]
-                drawLine(qp, x - 5, y - 5, x + 5, y + 5, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x - 5, y + 5, x + 5, y - 5, minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x - 5, y - 5, x + 5, y + 5, minX, minY, maxX, maxY, sizeX, sizeY)
+                # drawLine(qp, x - 5, y + 5, x + 5, y - 5, minX, minY, maxX, maxY, sizeX, sizeY)
+
+                drawMyLine(frame, x-5, y-5, x+5, y+5, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x-5, y+5, x+5, y-5, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
         #
         qp.end()
@@ -696,27 +866,34 @@ def draw_area_breaks(frame, data, minX, minY, maxX, maxY, selected_location=None
                     #         drawLine(qp, x, minY, x, maxY, minX, minY, maxX, maxY, sizeX, sizeY)
                     #         drawLine(qp, minX, y, maxX, y, minX, minY, maxX, maxY, sizeX, sizeY)
                     # small rectangle
-                    drawLine(qp, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+
+                    drawMyLine(frame, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
                     #            if frame.parent().parent().select_area_break_checkbox.isChecked():
-                    drawText(qp, x, y, rec[column_data['ab_look1']] + ' - ' + rec[column_data['ab_look2']], minX, minY, maxX, maxY, sizeX, sizeY)
+                    #drawText(qp, x, y, rec[column_data['ab_look1']] + ' - ' + rec[column_data['ab_look2']], minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyText(frame, x, y, rec[column_data['ab_look1']] + ' - ' + rec[column_data['ab_look2']], minX, minY, maxX, maxY, sizeX, sizeY, color)
+            elif selected_part:
+                pass
             else:
                 x = rec[column_data['x']]
                 y = rec[column_data['y']]
                 #         drawLine(qp, x, minY, x, maxY, minX, minY, maxX, maxY, sizeX, sizeY)
                 #         drawLine(qp, minX, y, maxX, y, minX, minY, maxX, maxY, sizeX, sizeY)
                 # small rectangle
-                drawLine(qp, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                drawMyLine(frame, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
                 #            if frame.parent().parent().select_area_break_checkbox.isChecked():
-                drawText(qp, x, y, rec[column_data['ab_look1']] + ' - ' + rec[column_data['ab_look2']], minX, minY,
-                         maxX, maxY, sizeX, sizeY)
+                drawMyText(frame, x, y, rec[column_data['ab_look1']] + ' - ' + rec[column_data['ab_look2']], minX, minY, maxX, maxY, sizeX, sizeY, color)
         #
         qp.end()
 
@@ -741,27 +918,36 @@ def draw_section_breaks(frame, data, minX, minY, maxX, maxY, selected_location=N
                     #         drawLine(qp, x, minY, x, maxY, minX, minY, maxX, maxY, sizeX, sizeY)
                     #         drawLine(qp, minX, y, maxX, y, minX, minY, maxX, maxY, sizeX, sizeY)
                     # small rectangle
-                    drawLine(qp, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+
+                    drawMyLine(frame, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
                     #        if frame.parent().parent().select_section_break_checkbox.isChecked():
-                    drawText(qp, x, y, rec[column_data['id']] + ':' + rec[column_data['sb_look1']] + ' - ' + rec[column_data['sb_look2']], minX, minY, maxX, maxY, sizeX, sizeY)
+                    #drawText(qp, x, y, rec[column_data['id']] + ':' + rec[column_data['sb_look1']] + ' - ' + rec[column_data['sb_look2']], minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyText(frame, x, y, rec[column_data['id']] + ':' + rec[column_data['sb_look1']] + ' - ' + rec[column_data['sb_look2']], minX, minY, maxX, maxY, sizeX, sizeY, color)
+            elif selected_part:
+                pass
             else:
                 x = rec[column_data['x']]
                 y = rec[column_data['y']]
                 #         drawLine(qp, x, minY, x, maxY, minX, minY, maxX, maxY, sizeX, sizeY)
                 #         drawLine(qp, minX, y, maxX, y, minX, minY, maxX, maxY, sizeX, sizeY)
                 # small rectangle
-                drawLine(qp, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                drawMyLine(frame, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
                 #        if frame.parent().parent().select_section_break_checkbox.isChecked():
-                drawText(qp, x, y, rec[column_data['id']] + ':' + rec[column_data['sb_look1']] + ' - ' + rec[
-                    column_data['sb_look2']], minX, minY, maxX, maxY, sizeX, sizeY)
+
+                drawMyText(frame, x, y, rec[column_data['id']] + ':' + rec[column_data['sb_look1']] + ' - ' + rec[
+                    column_data['sb_look2']], minX, minY, maxX, maxY, sizeX, sizeY, color)
 
         #
         qp.end()
@@ -787,29 +973,37 @@ def draw_composition_breaks(frame, data, minX, minY, maxX, maxY, selected_locati
                     #         drawLine(qp, x, minY, x, maxY, minX, minY, maxX, maxY, sizeX, sizeY)
                     #         drawLine(qp, minX, y, maxX, y, minX, minY, maxX, maxY, sizeX, sizeY)
                     # small rectangle
-                    drawLine(qp, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                    drawLine(qp, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                    # drawLine(qp, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+
+                    drawMyLine(frame, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                    drawMyLine(frame, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
                     #            if frame.parent().parent().select_composition_break_checkbox.isChecked():
-                    drawText(qp, x, y + 50, rec[column_data['cb_look1']] + ' - ' + rec[column_data['cb_look2']], minX, minY, maxX, maxY, sizeX, sizeY)
+                    #drawText(qp, x, y + 50, rec[column_data['cb_look1']] + ' - ' + rec[column_data['cb_look2']], minX, minY, maxX, maxY, sizeX, sizeY)
+                    drawMyText(frame, x, y + 50, rec[column_data['cb_look1']] + ' - ' + rec[column_data['cb_look2']], minX, minY, maxX, maxY, sizeX, sizeY, color)
 
                 #
+            elif selected_part:
+                pass
             else:
                 x = rec[column_data['x']]
                 y = rec[column_data['y']]
                 #         drawLine(qp, x, minY, x, maxY, minX, minY, maxX, maxY, sizeX, sizeY)
                 #         drawLine(qp, minX, y, maxX, y, minX, minY, maxX, maxY, sizeX, sizeY)
                 # small rectangle
-                drawLine(qp, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
-                drawLine(qp, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY)
+                drawMyLine(frame, x - 50, y - 50, x + 50, y - 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x - 50, y + 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x - 50, y - 50, x - 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
+                drawMyLine(frame, x + 50, y - 50, x + 50, y + 50, minX, minY, maxX, maxY, sizeX, sizeY, color)
 
                 #            if frame.parent().parent().select_composition_break_checkbox.isChecked():
-                drawText(qp, x, y + 50, rec[column_data['cb_look1']] + ' - ' + rec[column_data['cb_look2']], minX, minY,
-                         maxX, maxY, sizeX, sizeY)
+                drawMyText(frame, x, y + 50, rec[column_data['cb_look1']] + ' - ' + rec[column_data['cb_look2']], minX, minY, maxX, maxY, sizeX, sizeY, color)
+
 
             #
         qp.end()
@@ -827,6 +1021,6 @@ def draw_query_areas(frame, selectedAreas, minX, minY, maxX, maxY, selected_loca
 
     # draw
     for rect in selectedAreas:
-        drawRectange(qp, rect[0], rect[1], rect[2], rect[3], minX, minY, maxX, maxY, sizeX, sizeY)
+        drawMyRec(frame, rect[0], rect[1], rect[2], rect[3], minX, minY, maxX, maxY, sizeX, sizeY, color)
     #
     qp.end()

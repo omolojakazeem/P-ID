@@ -2,17 +2,17 @@ import sys
 
 # System packages
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QStringListModel
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QGridLayout, QLabel, QSplitter, QHBoxLayout, QComboBox, \
     QPushButton, \
     QFileDialog, QTextEdit, QCheckBox, QLineEdit, QMessageBox, QFontDialog, QTableWidget, QTableWidgetItem, QSizePolicy, \
-    QScrollArea
+    QScrollArea, QCompleter
 
 # Relative files
 
 
-from src_testing.sections import FrameDrawing, CheckableComboBox
-from src_testing.utils import query_by_areas, query_to_text, read_csv, find_ranges
+from src_folder.sections import FrameDrawing, CheckableComboBox, FrameDrawing1
+from src_folder.utils import query_by_areas, query_to_text, read_csv, find_ranges
 
 
 class NetListGUI(QWidget):
@@ -46,6 +46,7 @@ class NetListGUI(QWidget):
         self.es_column_data = None
         self.et_column_data = None
         self.ss_column_data = None
+        self.cont_label_list = []
 
         #
         self.initUI()
@@ -193,31 +194,44 @@ class NetListGUI(QWidget):
 
         ##
 
-        part_search_textbox = QLineEdit(self)
-        part_search_textbox.setPlaceholderText("Type part name / number")
-        left_grid.addWidget(part_search_textbox, 9, 0, 1, 2)
+        area_break_label = QLabel('Search for sensor tags / Equipment symbol class')
+        left_grid.addWidget(area_break_label, 9, 0, 1, 3)
+
+        self.search_model = QStringListModel()
+        search_completer = QCompleter()
+        search_completer.setModel(self.search_model)
+
+        self.part_search_textbox = QLineEdit(self)
+        self.part_search_textbox.setPlaceholderText("Enter search parameter")
+        self.part_search_textbox.setCompleter(search_completer)
+        left_grid.addWidget(self.part_search_textbox, 10, 1, 1, 2)
+        self.part_search_textbox.show()
+
+        self.part_query_options = QComboBox()
+        left_grid.addWidget(self.part_query_options, 10, 0)
+        self.part_query_options.activated.connect(self.on_part_query_options)
 
         self.part_search_btn = QPushButton('Query')
-        left_grid.addWidget(self.part_search_btn, 9, 2)
+        left_grid.addWidget(self.part_search_btn, 11, 0, 1, 3)
         self.part_search_btn.clicked.connect(self.on_part_search_btn)
 
         operation_result_label = QLabel('Shapes within:')
-        left_grid.addWidget(operation_result_label, 10, 0)
+        left_grid.addWidget(operation_result_label, 12, 0)
 
         self.operation_result_text = QTextEdit('')
         self.operation_result_text.setAcceptRichText(False)
-        left_grid.addWidget(self.operation_result_text, 11, 0, 8, 3)
+        left_grid.addWidget(self.operation_result_text, 13, 0, 8, 3)
 
         left_frame.setLayout(left_grid)
 
         # Right Frame Config
-        self.right_frame = FrameDrawing(self)  # the right QFrame is a FrameDrawing declared above
+        self.right_frame = FrameDrawing1(self)  # the right QFrame is a FrameDrawing declared above
         self.right_frame.setFrameShape(QFrame.StyledPanel)
 
-        right_grid = QGridLayout()
-        right_grid.setSpacing(10)
+        # right_grid = QGridLayout()
+        # right_grid.setSpacing(10)
 
-        self.right_frame.setLayout(right_grid)
+        #self.right_frame.setLayout(right_grid)
 
         # 3 - Splitter
         splitter1 = QSplitter(Qt.Horizontal)
@@ -226,11 +240,16 @@ class NetListGUI(QWidget):
 
         hbox.addWidget(splitter1)
         self.setLayout(hbox)
-
         # size of the main window
         self.setGeometry(100, 100, 1300, 700)
         self.setWindowTitle('Netlist GUI')
         self.show()
+
+    # def wheelEvent(self, event):
+    #     self.x = self.x + event.delta() / 120
+    #     print(self.x)
+
+        #self.label.setText("Total Steps: " + QString.number(self.x))
 
     def part_lookup_by_location(self):
         self.selectedLocation = []
@@ -246,14 +265,8 @@ class NetListGUI(QWidget):
             if item.checkState() == Qt.Checked:
                 self.selectedLocation.append(all_location[i])
 
-        # for i in range(
-        #         self.part_query_options.model().rowCount()):
-        #     item = self.part_query_options.model().item(i, 0)
-        #     if item.checkState() == Qt.Checked:
-        #         self.selectedPart.append(all_part[i])
-
         self.selectedData = query_by_areas(self.data, self.selectedAreas, self.get_useful_column_name)
-        result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, selected_item, self.get_useful_column_name, self.column_list)
+        result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart, self.get_useful_column_name, self.column_list)
 
         self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
@@ -261,7 +274,7 @@ class NetListGUI(QWidget):
     def on_area_break_query_btn(self):
         areas = self.area_break_query_options
 
-        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        self.selectedAreas = [(self.minX, self.minY, self.maxX, self.maxY)]
         selected_index = areas.check_items()
         selected_item = []
         cl_column_data, ab_column_data, sb_column_data, cb_column_data, vs_column_data, pl_column_data, pj_column_data, ts_column_data, es_column_data, et_column_data, ss_column_data = self.get_useful_column_name
@@ -270,6 +283,7 @@ class NetListGUI(QWidget):
             selected_item.append(self.area_list[i])
         if selected_item:
             self.selectedAreas = []
+
         for i in range(len(selected_item)):
             for k in self.data['Area Breaks']:
                 sdata = []
@@ -288,8 +302,11 @@ class NetListGUI(QWidget):
                         maxy = self.minY
                         miny = k[ab_column_data['y']]
                     sdata = [(minx, miny, maxx, maxy)]
+
                 self.selectedAreas.extend(sdata)
-        result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, selected_item, self.get_useful_column_name, self.column_list)
+        self.selectedData = query_by_areas(self.data, self.selectedAreas, self.get_useful_column_name)
+        result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart, self.get_useful_column_name, self.column_list)
+
         self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
@@ -311,7 +328,8 @@ class NetListGUI(QWidget):
         for i in range(len(selected_item)):
             for k in self.data['Section Breaks']:
                 sdata = []
-                if k[sb_column_data['sb_look1']] == selected_item[i] or k[sb_column_data['sb_look2']] == selected_item[i]:
+                current_selected_item = selected_item[i]
+                if current_selected_item == k[sb_column_data['sb_look1']] or current_selected_item == k[sb_column_data['sb_look2']]:
                     if k[sb_column_data['x']] > self.minX:
                         minx = self.minX
                         maxx = k[sb_column_data['x']]
@@ -326,10 +344,14 @@ class NetListGUI(QWidget):
                         maxy = self.minY
                         miny = k[sb_column_data['y']]
                     sdata = [(minx, miny, maxx, maxy)]
-                self.selectedAreas.extend(sdata)
+                if sdata:
+                    self.selectedAreas.extend(sdata)
 
-        self.selectedData = query_by_areas(self.data, self.selectedAreas,
-                                           self.get_useful_column_name)  # call query_by_areas()
+        self.selectedData = query_by_areas(self.data, self.selectedAreas, self.get_useful_column_name)  # call query_by_areas()
+        result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                      self.get_useful_column_name, self.column_list)
+
+        self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
     def on_composition_break_query_btn(self):
@@ -368,7 +390,10 @@ class NetListGUI(QWidget):
 
         self.selectedData = query_by_areas(self.data, self.selectedAreas,
                                            self.get_useful_column_name)  # call query_by_areas()
+        result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                      self.get_useful_column_name, self.column_list)
 
+        self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
     def on_select_pipeline_checkbox(self):
@@ -379,6 +404,19 @@ class NetListGUI(QWidget):
 
     def on_select_equipment_tag_checkbox(self):
         self.right_frame.repaint()
+
+    def on_part_query_options(self):
+        selected_item = self.part_query_options.currentText()
+        self.part_search_textbox.clear()
+        sensor_text = "Enter Sensor tag"
+        equipment_text = "Enter Equipment symbol class"
+
+        if selected_item == 'Sensors':
+            self.part_search_textbox.setPlaceholderText(sensor_text)
+            self.search_model.setStringList(self.sensor_list)
+        elif selected_item == 'Equipment symbols':
+            self.part_search_textbox.setPlaceholderText(equipment_text)
+            self.search_model.setStringList(self.cont_label_list)
 
     def on_select_vessel_checkbox(self):
         self.right_frame.repaint()
@@ -402,7 +440,21 @@ class NetListGUI(QWidget):
         self.right_frame.repaint()
 
     def on_part_search_btn(self):
-        self.rightFrame.repaint()
+        selected_criteria1 = self.part_query_options.currentText()
+        selected_criteria2 = self.part_search_textbox.text()
+
+        total_criteria = [selected_criteria1, selected_criteria2]
+        self.selectedPart = []
+        self.selectedAreas = [(self.minX, self.minY, self.maxX, self.maxY)]
+
+        self.selectedPart.extend(total_criteria)
+
+        self.selectedData = query_by_areas(self.data, self.selectedAreas, self.get_useful_column_name)
+
+        result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart, self.get_useful_column_name, self.column_list)
+        #
+        self.operation_result_text.setText(result_string)
+        self.right_frame.repaint()
 
     def msgbox(self, title, message):
         # msg = QMessageBox(title, message, QMessageBox.Ok)
@@ -663,6 +715,7 @@ class NetListGUI(QWidget):
         ss_y_column = None
         ss_r_column = None
         ss_number_column = None
+        ss_tag_column = None
 
         self.ss_column_data = {
             "Location": ss_location_column,
@@ -670,6 +723,7 @@ class NetListGUI(QWidget):
             "y": ss_y_column,
             "r": ss_r_column,
             "number": ss_number_column,
+            "tag": ss_tag_column,
         }
 
         if 'Sensors' in self.columns:
@@ -685,6 +739,8 @@ class NetListGUI(QWidget):
                     self.ss_column_data["r"] = cl.index(i)
                 elif i == 'number' or i == 'Number':
                     self.ss_column_data["number"] = cl.index(i)
+                elif i == 'tag' or i == 'Tag' or i == 'Reading' or i == 'reading':
+                    self.ss_column_data["tag"] = cl.index(i)
 
         es_location_column = None
         es_x_column = None
@@ -692,6 +748,7 @@ class NetListGUI(QWidget):
         es_w_column = None
         es_h_column = None
         es_number_column = None
+        es_class_column = None
 
         self.es_column_data = {
             "Location": es_location_column,
@@ -700,6 +757,7 @@ class NetListGUI(QWidget):
             "w": es_w_column,
             "h": es_h_column,
             "number": es_number_column,
+            "class": es_class_column,
         }
 
         if 'Equipment symbols' in self.columns:
@@ -717,6 +775,8 @@ class NetListGUI(QWidget):
                     self.es_column_data["h"] = cl.index(i)
                 elif i == 'number' or i == 'Number':
                     self.es_column_data["number"] = cl.index(i)
+                elif i == 'class' or i == 'Class':
+                    self.es_column_data["class"] = cl.index(i)
 
         et_location_column = None
         et_x_column = None
@@ -826,9 +886,9 @@ class NetListGUI(QWidget):
                 self.load_file_label.setText(file_name[0][pos + 1:])
                 # read_csv(file_name[0])
                 self.data, self.columns = read_csv(file_name[0])
+
                 useful_column_index = self.get_useful_column_name
-                self.minX, self.minY, self.maxX, self.maxY, self.location_list_name = find_ranges(self.data,
-                                                                                                  useful_column_index)
+                self.minX, self.minY, self.maxX, self.maxY, self.location_list_name = find_ranges(self.data, useful_column_index)
                 cl_column_data, ab_column_data, sb_column_data, cb_column_data, vs_column_data, pl_column_data, pj_column_data, ts_column_data, es_column_data, et_column_data, ss_column_data = self.get_useful_column_name
 
                 location_list_set = set(self.location_list_name)
@@ -840,9 +900,12 @@ class NetListGUI(QWidget):
                     self.part_location_options.clear()
                 self.part_location_options.addItems(location_list)
 
-                # if self.part_query_options.count() > 0:
-                #     self.part_query_options.clear()
-                # self.part_query_options.addItems(list(self.columns))
+                if self.part_query_options.count() > 0:
+                    self.part_query_options.clear()
+
+                self.search_part_list = ["Equipment symbols", "Sensors"]
+                self.part_query_options.addItems(self.search_part_list)
+                self.part_search_textbox.setPlaceholderText("Enter Equipment symbol class")
 
                 for i in range(len(location_list)):
                     item = self.part_location_options.model().item(i, 0)
@@ -899,6 +962,23 @@ class NetListGUI(QWidget):
                         item.setCheckState(Qt.Unchecked)
 
                 self.selectedData = self.data
+
+                self.cont_label_list = set()
+                self.sensor_list = set()
+                if "Equipment symbols" in self.selectedData:
+                    self.cont_labels = self.selectedData["Equipment symbols"]
+                    for s_n, i in enumerate(self.cont_labels):
+                        self.cont_label_list.add(i[self.cl_column_data["tag"]])
+                    self.search_model.setStringList(self.cont_label_list)
+                if "Sensors" in self.selectedData:
+                    self.sensors = self.selectedData["Sensors"]
+                    for s_n, i in enumerate(self.sensors):
+                        self.sensor_list.add(i[self.ss_column_data["tag"]])
+
+                result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                              self.get_useful_column_name, self.column_list)
+
+                self.operation_result_text.setText(result_string)
 
 if __name__ == "__main__":
     import sys
