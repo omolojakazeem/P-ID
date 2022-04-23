@@ -374,8 +374,11 @@ def query_to_text(data, selectedData, selected_location=None, selected_part=None
                                     if selected_part[0] == 'Equipment symbols':
                                         if rec[es_column_data['class']] in selected_part:
                                             ret += str(rec) + '\n'
-                                elif rec[es_column_data['Location']] in selected_location:
-                                    ret += str(rec) + '\n'
+                                elif selected_location:
+                                    if rec[es_column_data['Location']] in selected_location:
+                                        ret += str(rec) + '\n'
+                                    else:
+                                        pass
                                 else:
                                     ret += str(rec) + '\n'
                             if i == 'Equipment Tags':

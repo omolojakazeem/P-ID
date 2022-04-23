@@ -215,8 +215,18 @@ class NetListGUI(QWidget):
         left_grid.addWidget(self.part_search_btn, 11, 0, 1, 3)
         self.part_search_btn.clicked.connect(self.on_part_search_btn)
 
+        ##
+
+        self.data_type_query_options = QComboBox()
+        left_grid.addWidget(self.data_type_query_options, 12, 0)
+        #self.data_type_query_options.activated.connect(self.on_data_type_query_btn)
+
+        self.data_type_query_btn = QPushButton('Get data type')
+        left_grid.addWidget(self.data_type_query_btn, 12, 1, 1, 2)
+        self.data_type_query_btn.clicked.connect(self.on_data_type_query_btn)
+
         operation_result_label = QLabel('Shapes within:')
-        left_grid.addWidget(operation_result_label, 12, 0)
+        left_grid.addWidget(operation_result_label, 13, 0)
 
         self.operation_result_text = QTextEdit('')
         self.operation_result_text.setAcceptRichText(False)
@@ -244,12 +254,6 @@ class NetListGUI(QWidget):
         self.setGeometry(100, 100, 1300, 700)
         self.setWindowTitle('Netlist GUI')
         self.show()
-
-    # def wheelEvent(self, event):
-    #     self.x = self.x + event.delta() / 120
-    #     print(self.x)
-
-        #self.label.setText("Total Steps: " + QString.number(self.x))
 
     def part_lookup_by_location(self):
         self.selectedLocation = []
@@ -397,12 +401,57 @@ class NetListGUI(QWidget):
         self.right_frame.repaint()
 
     def on_select_pipeline_checkbox(self):
+        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        data_clone = self.selectedData.copy()
+        if self.select_pipeline_checkbox.checkState() == 0:
+            if 'Pipelines' in data_clone:
+                data_clone.pop('Pipelines')
+            result_string = query_to_text(data_clone, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+
+            self.operation_result_text.setText(result_string)
+            self.right_frame.repaint()
+        elif self.select_pipeline_checkbox.checkState() == 2:
+            result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+            self.operation_result_text.setText(result_string)
+
         self.right_frame.repaint()
 
     def on_select_equipment_checkbox(self):
+        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        data_clone = self.selectedData.copy()
+        if self.select_equipment_checkbox.checkState() == 0:
+            if 'Equipment symbols' in data_clone:
+                data_clone.pop('Equipment symbols')
+            result_string = query_to_text(data_clone, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+
+            self.operation_result_text.setText(result_string)
+
+        elif self.select_equipment_checkbox.checkState() == 2:
+            result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+            self.operation_result_text.setText(result_string)
+
         self.right_frame.repaint()
 
     def on_select_equipment_tag_checkbox(self):
+        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        data_clone = self.selectedData.copy()
+        if self.select_equipment_tag_checkbox.checkState() == 0:
+            if 'Equipment Tags' in data_clone:
+                data_clone.pop('Equipment Tags')
+
+            result_string = query_to_text(data_clone, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+
+            self.operation_result_text.setText(result_string)
+            self.right_frame.repaint()
+        elif self.select_equipment_tag_checkbox.checkState() == 2:
+            result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+            self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
     def on_part_query_options(self):
@@ -419,24 +468,105 @@ class NetListGUI(QWidget):
             self.search_model.setStringList(self.cont_label_list)
 
     def on_select_vessel_checkbox(self):
+        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        data_clone = self.selectedData.copy()
+        if self.select_vessel_checkbox.checkState() == 0:
+            if 'Vessels' in data_clone:
+                data_clone.pop('Vessels')
+            result_string = query_to_text(data_clone, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+
+            self.operation_result_text.setText(result_string)
+
+        elif self.select_vessel_checkbox.checkState() == 2:
+            result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+            self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
     def on_select_sensor_checkbox(self):
+        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        data_clone = self.selectedData.copy()
+        if self.select_sensor_checkbox.checkState() == 0:
+            if 'Sensors' in data_clone:
+                data_clone.pop('Sensors')
+            result_string = query_to_text(data_clone, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+
+            self.operation_result_text.setText(result_string)
+
+        elif self.select_sensor_checkbox.checkState() == 2:
+            result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+            self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
     def on_select_continuity_checkbox(self):
+        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        data_clone = self.selectedData.copy()
+        if self.select_continuity_checkbox.checkState() == 0:
+            if 'Continuity Labels' in data_clone:
+                data_clone.pop('Continuity Labels')
+            result_string = query_to_text(data_clone, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+
+            self.operation_result_text.setText(result_string)
+
+        elif self.select_continuity_checkbox.checkState() == 2:
+            result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+            self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
     def on_select_area_break_checkbox(self):
+        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        data_clone = self.selectedData.copy()
+        if self.select_area_break_checkbox.checkState() == 0:
+            if 'Area Breaks' in data_clone:
+                data_clone.pop('Area Breaks')
+            result_string = query_to_text(data_clone, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+
+            self.operation_result_text.setText(result_string)
+
+        elif self.select_area_break_checkbox.checkState() == 2:
+            result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+            self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
     def on_select_section_break_checkbox(self):
+        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        data_clone = self.selectedData.copy()
+        if self.select_section_break_checkbox.checkState() == 0:
+            if 'Section Breaks' in data_clone:
+                data_clone.pop('Section Breaks')
+            result_string = query_to_text(data_clone, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+
+            self.operation_result_text.setText(result_string)
+
+        elif self.select_section_break_checkbox.checkState() == 2:
+            result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+            self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
     def on_select_composition_break_checkbox(self):
-        self.right_frame.repaint()
+        self.selectedAreas = [(self.minX - 200, self.minY - 200, self.maxX + 200, self.maxY + 200)]
+        data_clone = self.selectedData.copy()
+        if self.select_composition_break_checkbox.checkState() == 0:
+            if 'Section Breaks' in data_clone:
+                data_clone.pop('Section Breaks')
+            result_string = query_to_text(data_clone, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
 
-    def on_part_query_btn(self):
+            self.operation_result_text.setText(result_string)
+
+        elif self.select_composition_break_checkbox.checkState() == 2:
+            result_string = query_to_text(self.data, self.selectedData, self.selectedLocation, self.selectedPart,
+                                          self.get_useful_column_name, self.column_list)
+            self.operation_result_text.setText(result_string)
         self.right_frame.repaint()
 
     def on_part_search_btn(self):
@@ -499,6 +629,28 @@ class NetListGUI(QWidget):
         self.msg.show()
 
         return False
+
+    def on_data_type_query_btn(self):
+        selected_criteria = self.data_type_query_options.currentText()
+        print(selected_criteria)
+
+        import pandas as pd
+        df = pd.DataFrame(self.data[selected_criteria])
+
+        print(df.dtypes)
+        title = 'Data Types'
+        column1_data = self.columns[selected_criteria]
+        column2_data = df.dtypes.tolist()
+        row = ""
+
+        for i in range(len(column1_data)):
+            row += '<tr style="nth-child(even)">' + '<td style="border: 1px solid #ddd;padding: 8px;">' + str(column1_data[i]) + '</td>'\
+                   + '<td style="border: 1px solid #ddd;padding: 8px;">' + str(column2_data[i]) + '</td>' + '</tr>'
+        message = '<table border=1 style="border-collapse: collapse; width: 100%;"> ' \
+                  '<tr><th colspan=2 style="text-align:center; border: 1px solid #ddd;padding: 8px;">' \
+                  + selected_criteria + '</th></tr>' + row + '</table>'
+
+        self.msgbox(title, message)
 
     @property
     def get_useful_column_name(self):
@@ -886,6 +1038,10 @@ class NetListGUI(QWidget):
                 self.load_file_label.setText(file_name[0][pos + 1:])
                 # read_csv(file_name[0])
                 self.data, self.columns = read_csv(file_name[0])
+
+                if self.data_type_query_options.count() > 0:
+                    self.data_type_query_options.clear()
+                self.data_type_query_options.addItems(self.columns)
 
                 useful_column_index = self.get_useful_column_name
                 self.minX, self.minY, self.maxX, self.maxY, self.location_list_name = find_ranges(self.data, useful_column_index)
